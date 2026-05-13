@@ -1,0 +1,132 @@
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.product {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-align: center;
+}
+
+.product img {
+    width: 70%;
+    height: 180px;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+    border-radius: 12px 12px 0 0;
+}
+
+.product-info {
+    padding: 16px 20px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-info h3 {
+    font-size: 17px;
+    color: #1C1C1C;
+    margin-bottom: 8px;
+}
+
+.product-desc {
+    font-size: 13px;
+    color: #4B2E2B;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.product-info .price {
+    margin-bottom: 14px;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-group button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    min-width: 120px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Product page specific button overrides - highest specificity */
+.products .product .btn-group .add-to-cart-btn,
+.products .product-grid .product .btn-group .add-to-cart-btn,
+button.add-to-cart-btn {
+    background: #ff6b6b !important;
+    background-color: #ff6b6b !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4) !important;
+    border: none !important;
+}
+
+.products .product .btn-group .add-to-cart-btn:hover,
+.products .product-grid .product .btn-group .add-to-cart-btn:hover,
+button.add-to-cart-btn:hover {
+    background: #ee5a52 !important;
+    background-color: #ee5a52 !important;
+    box-shadow: 0 6px 18px rgba(255, 107, 107, 0.6) !important;
+    transform: translateY(-3px) !important;
+}
+
+.products .product .btn-group .btn-buy-now,
+.products .product-grid .product .btn-group .btn-buy-now,
+button.btn-buy-now {
+    background: #E6BE7A !important;
+    background-color: #E6BE7A !important;
+    box-shadow: 0 4px 12px rgba(230, 190, 122, 0.4) !important;
+    color: #4B2E2B !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    border: none !important;
+}
+
+.products .product .btn-group .btn-buy-now:hover,
+.products .product-grid .product .btn-group .btn-buy-now:hover,
+button.btn-buy-now:hover {
+    background: #d4a95e !important;
+    background-color: #d4a95e !important;
+    box-shadow: 0 6px 18px rgba(230, 190, 122, 0.6) !important;
+    transform: translateY(-3px) !important;
+}
+
+.btn-buy-now a {
+    color: #4B2E2B;
+    text-decoration: none;
+}
+
+
+
+@media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product img {
+        height: 200px;
+    }
+}

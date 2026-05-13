@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Mazhalai Mart Admin</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../admin-styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h1>Mazhalai Mart</h1>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="../dashboard.html" class="admin-nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="../products/view_products.html" class="admin-nav-item">
+                    <i>📦</i> Products
+                </a>
+                <a href="view_orders.html" class="admin-nav-item active">
+                    <i>🛒</i> Orders
+                </a>
+                <a href="../users/view_users.html" class="admin-nav-item">
+                    <i>👥</i> Users
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <header class="admin-header">
+                <h1>Orders Management</h1>
+                <div class="admin-user-info">
+                    <div class="admin-user-details">
+                        <p class="admin-user-name" id="adminName">Loading...</p>
+                        <p class="admin-user-role" id="adminRole">Loading...</p>
+                    </div>
+                    <a href="../logout.php" class="admin-logout-btn">Logout</a>
+                </div>
+            </header>
+            
+            <main class="admin-content">
+                <!-- Order Statistics -->
+                <div class="dashboard-stats" id="orderStats">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <h3 class="stat-number" id="pendingOrders">-</h3>
+                        <p class="stat-label">Pending</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <h3 class="stat-number" id="confirmedOrders">-</h3>
+                        <p class="stat-label">Confirmed</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🚚</div>
+                        <h3 class="stat-number" id="shippedOrders">-</h3>
+                        <p class="stat-label">Shipped</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <h3 class="stat-number" id="deliveredOrders">-</h3>
+                        <p class="stat-label">Delivered</p>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2 class="page-title">All Orders (<span id="orderCount">0</span>)</h2>
+                </div>
+                
+                <!-- Search and Filters -->
+                <div class="search-filters">
+                    <div class="search-row">
+                        <div class="form-group">
+                            <label for="search">Search Orders</label>
+                            <input type="text" id="search" name="search" 
+                                   placeholder="Order ID, customer name, email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateFrom">From Date</label>
+                            <input type="date" id="dateFrom" name="dateFrom">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateTo">To Date</label>
+                            <input type="date" id="dateTo" name="dateTo">
+                        </div>
+                        
+                        <button type="button" id="searchBtn" class="admin-btn">Search</button>
+                        <button type="button" id="clearBtn" class="admin-btn admin-btn-danger">Clear</button>
+                    </div>
+                </div>
+                
+                <!-- Orders Table -->
+                <div class="admin-table-container">
+                    <div id="loadingMessage" class="loading-message">Loading orders...</div>
+                    <div id="ordersTable" style="display: none;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Orders will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="noOrders" class="no-data" style="display: none;">
+                        No orders found.
+                    </div>
+                    
+                    <div id="errorMessage" class="error-message" style="display: none;">
+                        Failed to load orders. Please try again.
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="pagination" class="pagination" style="display: none;">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Order Details Modal -->
+    <div id="orderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #dee2e6;">
+                <h3 style="margin: 0; color: #4B2E2B; font-family: 'Quicksand', sans-serif; font-weight: 600;">Order Details</h3>
+                <button onclick="closeModal(); event.stopPropagation();" class="modal-close-btn" title="Close" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; color: #6c757d; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.2s ease;">×</button>
+            </div>
+            <div id="orderDetailsContent">
+                Loading...
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Update Modal -->
+    <div id="statusModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 30px; max-width: 400px; width: 90%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #dee2e6;">
+                <h3 style="margin: 0; color: #4B2E2B; font-family: 'Quicksand', sans-serif; font-weight: 600;">Update Order Status</h3>
+                <button onclick="closeStatusModal(); event.stopPropagation();" class="modal-close-btn" title="Close" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; color: #6c757d; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.2s ease;">×</button>
+            </div>
+            <form id="statusUpdateForm">
+                <input type="hidden" id="updateOrderId">
+                <div class="form-group">
+                    <label for="newStatus">New Status</label>
+                    <select id="newStatus" required>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="admin-btn">Update Status</button>
+                    <button type="button" onclick="closeStatusModal()" class="admin-btn admin-btn-danger">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            // Check for URL parameters to filter by user
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            const searchTerm = urlParams.get('search');
+            
+            // If user_id is provided, set up user-specific filtering
+            if (userId) {
+                setupUserFilter(userId, searchTerm);
+            }
+            
+            // If search term is provided, populate search field
+            if (searchTerm) {
+                $('#search').val(searchTerm);
+            }
+            
+            loadOrders();
+            loadOrderStats();
+            loadAdminInfo();
+            
+            // Search functionality
+            $('#searchBtn').on('click', function() {
+                loadOrders();
+            });
+            
+            $('#clearBtn').on('click', function() {
+                $('#search').val('');
+                $('#status').val('');
+                $('#dateFrom').val('');
+                $('#dateTo').val('');
+                loadOrders();
+            });
+            
+            // Enter key search
+            $('#search').on('keypress', function(e) {
+                if (e.which === 13) {
+                    loadOrders();
+                }
+            });
+            
+            // Status update form
+            $('#statusUpdateForm').on('submit', function(e) {
+                e.preventDefault();
+                updateOrderStatus();
+            });
+        });
+        
+        function loadOrders(page = 1) {
+            showLoading();
+            
+            // Get URL parameters for user filtering
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            
+            const filters = {
+                search: $('#search').val(),
+                status: $('#status').val(),
+                date_from: $('#dateFrom').val(),
+                date_to: $('#dateTo').val(),
+                page: page
+            };
+            
+            // Add user_id filter if present
+            if (userId) {
+                filters.user_id = userId;
+            }
+            
+            $.ajax({
+                url: '../api/orders.php',
+                method: 'GET',
+                data: filters,
+                success: function(response) {
+                    if (response.success) {
+                        displayOrders(response.orders);
+                        updateOrderCount(response.total);
+                        displayPagination(response.pagination);
+                    } else {
+                        showError();
+                    }
+                },
+                error: function() {
+                    showError();
+                }
+            });
+        }
+        
+        function setupUserFilter(userId, username) {
+            // Update page title to show it's filtered by user
+            if (username) {
+                $('h1').text(`Orders Management - ${username}`);
+                $('.page-title').html(`Orders for User: <strong>${username}</strong> (<span id="orderCount">0</span>)`);
+            } else {
+                $('h1').text(`Orders Management - User ID: ${userId}`);
+                $('.page-title').html(`Orders for User ID: <strong>${userId}</strong> (<span id="orderCount">0</span>)`);
+            }
+            
+            // Add a notice about the filter
+            const filterNotice = `
+                <div class="alert alert-info" style="margin-bottom: 20px;">
+                    <strong>Filtered View:</strong> Showing orders for specific user only. 
+                    <a href="view_orders.html" style="color: #4B2E2B; text-decoration: underline;">View all orders</a>
+                </div>
+            `;
+            $('.page-header').after(filterNotice);
+        }
+        
+        function loadOrderStats() {
+            $.ajax({
+                url: '../api/order_stats.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateOrderStats(response.stats);
+                    }
+                },
+                error: function() {
+                    console.error('Failed to load order statistics');
+                }
+            });
+        }
+        
+        function updateOrderStats(stats) {
+            $('#pendingOrders').text(stats.pending ? stats.pending.count : 0);
+            $('#confirmedOrders').text(stats.confirmed ? stats.confirmed.count : 0);
+            $('#shippedOrders').text(stats.shipped ? stats.shipped.count : 0);
+            $('#deliveredOrders').text(stats.delivered ? stats.delivered.count : 0);
+        }
+        
+        function displayOrders(orders) {
+            hideLoading();
+            
+            if (orders.length === 0) {
+                showNoOrders();
+                return;
+            }
+            
+            let html = '';
+            orders.forEach(function(order) {
+                html += `<tr>
+                    <td><strong>${escapeHtml(order.order_id)}</strong></td>
+                    <td>
+                        <strong>${escapeHtml(order.customer_name)}</strong><br>
+                        <small style="color: #666;">${escapeHtml(order.customer_email)}</small><br>
+                        <small style="color: #666;">${escapeHtml(order.customer_phone || '')}</small>
+                        ${order.username ? `<br><small style="color: #27ae60;">User: ${escapeHtml(order.username)}</small>` : '<br><small style="color: #999;">Guest</small>'}
+                    </td>
+                    <td>
+                        <strong>₹${parseFloat(order.total_amount).toLocaleString()}</strong><br>
+                        <small style="color: #666;">
+                            Subtotal: ₹${parseFloat(order.subtotal).toLocaleString()}<br>
+                            Delivery: ₹${parseFloat(order.delivery_charges).toLocaleString()}
+                        </small>
+                    </td>
+                    <td>${order.payment_method.toUpperCase()}</td>
+                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                    <td>
+                        ${formatDate(order.created_at)}<br>
+                        <small style="color: #666;">${formatTime(order.created_at)}</small>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewOrderDetails(${order.id})" class="admin-btn admin-btn-small">View</button>
+                            <button onclick="showUpdateStatus(${order.id}, '${order.status}')" class="admin-btn admin-btn-small admin-btn-success">Update</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            $('#ordersTableBody').html(html);
+            $('#ordersTable').show();
+            $('#noOrders').hide();
+            $('#errorMessage').hide();
+        }
+        
+        function updateOrderCount(total) {
+            $('#orderCount').text(total);
+        }
+        
+        function displayPagination(pagination) {
+            if (pagination.total_pages <= 1) {
+                $('#pagination').hide();
+                return;
+            }
+            
+            let html = '<div style="text-align: center; margin-top: 20px;">';
+            
+            if (pagination.current_page > 1) {
+                html += `<button onclick="loadOrders(${pagination.current_page - 1})" class="admin-btn admin-btn-small">← Previous</button> `;
+            }
+            
+            html += `<span style="margin: 0 15px;">Page ${pagination.current_page} of ${pagination.total_pages}</span>`;
+            
+            if (pagination.current_page < pagination.total_pages) {
+                html += ` <button onclick="loadOrders(${pagination.current_page + 1})" class="admin-btn admin-btn-small">Next →</button>`;
+            }
+            
+            html += '</div>';
+            $('#pagination').html(html).show();
+        }
+        
+        function showLoading() {
+            $('#loadingMessage').show();
+            $('#ordersTable').hide();
+            $('#noOrders').hide();
+            $('#errorMessage').hide();
+        }
+        
+        function hideLoading() {
+            $('#loadingMessage').hide();
+        }
+        
+        function showNoOrders() {
+            $('#ordersTable').hide();
+            $('#noOrders').show();
+            $('#errorMessage').hide();
+        }
+        
+        function showError() {
+            hideLoading();
+            $('#ordersTable').hide();
+            $('#noOrders').hide();
+            $('#errorMessage').show();
+        }
+        
+        function viewOrderDetails(orderId) {
+            $('#orderDetailsContent').html('<div style="text-align: center; padding: 20px;"><p>Loading order details...</p></div>');
+            $('#orderModal').show();
+            
+            $.ajax({
+                url: 'get_order_details.php?id=' + orderId,
+                method: 'GET',
+                timeout: 10000,
+                success: function(data) {
+                    $('#orderDetailsContent').html(data);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Order details error:', error);
+                    console.error('Response:', xhr.responseText);
+                    
+                    let errorHtml = '<div style="padding: 20px; text-align: center;">';
+                    errorHtml += '<p style="color: red; font-weight: bold;">Failed to load order details.</p>';
+                    
+                    if (xhr.status === 401) {
+                        errorHtml += '<p style="color: #666;">Authentication required. Please <a href="../login.html">login again</a>.</p>';
+                    } else if (xhr.status === 404) {
+                        errorHtml += '<p style="color: #666;">Order not found or has been deleted.</p>';
+                    } else if (status === 'timeout') {
+                        errorHtml += '<p style="color: #666;">Request timed out. Please try again.</p>';
+                    } else {
+                        errorHtml += '<p style="color: #666;">Please try again or contact support if the problem persists.</p>';
+                    }
+                    
+                    errorHtml += '<button onclick="viewOrderDetails(' + orderId + ')" style="margin-top: 10px; padding: 8px 16px; background: #4B2E2B; color: white; border: none; border-radius: 4px; cursor: pointer;">Retry</button>';
+                    errorHtml += '</div>';
+                    
+                    $('#orderDetailsContent').html(errorHtml);
+                }
+            });
+        }
+        
+        function showUpdateStatus(orderId, currentStatus) {
+            $('#updateOrderId').val(orderId);
+            $('#newStatus').val(currentStatus);
+            $('#statusModal').show();
+        }
+        
+        function updateOrderStatus() {
+            const orderId = $('#updateOrderId').val();
+            const newStatus = $('#newStatus').val();
+            
+            $.ajax({
+                url: '../orders/update_order_status.php',
+                method: 'POST',
+                data: {
+                    order_id: orderId,
+                    status: newStatus
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Order status updated successfully!');
+                        closeStatusModal();
+                        loadOrders();
+                        loadOrderStats();
+                    } else {
+                        alert('Failed to update order status: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Update status error:', error);
+                    console.error('Response:', xhr.responseText);
+                    
+                    let errorMessage = 'Failed to update order status. Please try again.';
+                    
+                    if (xhr.status === 401) {
+                        errorMessage = 'Authentication required. Please login again.';
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        // Use default error message
+                    }
+                    
+                    alert(errorMessage);
+                }
+            });
+        }
+        
+        function closeModal() {
+            try {
+                console.log('Closing order modal');
+                const modal = $('#orderModal');
+                modal.fadeOut(200);
+                // Force hide after animation
+                setTimeout(() => {
+                    modal.hide().css('display', 'none');
+                }, 250);
+            } catch (error) {
+                console.error('Error closing order modal:', error);
+                $('#orderModal').hide().css('display', 'none');
+            }
+        }
+        
+        function closeStatusModal() {
+            try {
+                console.log('Closing status modal');
+                const modal = $('#statusModal');
+                modal.fadeOut(200);
+                // Force hide after animation
+                setTimeout(() => {
+                    modal.hide().css('display', 'none');
+                }, 250);
+            } catch (error) {
+                console.error('Error closing status modal:', error);
+                $('#statusModal').hide().css('display', 'none');
+            }
+        }
+        
+        // Add hover effects to close buttons
+        $(document).ready(function() {
+            $(document).on('mouseenter', '.modal-close-btn', function() {
+                $(this).css({
+                    'background': '#e9ecef',
+                    'color': '#495057',
+                    'border-color': '#adb5bd',
+                    'transform': 'scale(1.05)'
+                });
+            });
+            
+            $(document).on('mouseleave', '.modal-close-btn', function() {
+                $(this).css({
+                    'background': '#f8f9fa',
+                    'color': '#6c757d',
+                    'border-color': '#dee2e6',
+                    'transform': 'scale(1)'
+                });
+            });
+            
+            $(document).on('mousedown', '.modal-close-btn', function() {
+                $(this).css('transform', 'scale(0.95)');
+            });
+            
+            $(document).on('mouseup', '.modal-close-btn', function() {
+                $(this).css('transform', 'scale(1.05)');
+            });
+        });
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+        
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function loadAdminInfo() {
+            $.ajax({
+                url: '../api/admin_info.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.admin) {
+                        $('#adminName').text(response.admin.full_name);
+                        $('#adminRole').text(response.admin.role);
+                    } else {
+                        $('#adminName').text('Administrator');
+                        $('#adminRole').text('Admin');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to load admin info:', error);
+                    $('#adminName').text('Administrator');
+                    $('#adminRole').text('Admin');
+                }
+            });
+        }
+        
+        // Close modals when clicking outside
+        $(document).on('click', function(e) {
+            if (e.target.id === 'orderModal') {
+                closeModal();
+            }
+            if (e.target.id === 'statusModal') {
+                closeStatusModal();
+            }
+        });
+        
+        // Close modals with ESC key
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if ($('#orderModal').is(':visible')) {
+                    closeModal();
+                }
+                if ($('#statusModal').is(':visible')) {
+                    closeStatusModal();
+                }
+            }
+        });
+    </script>
+    
+    <!-- Responsive Admin JavaScript -->
+    <script src="../admin-responsive.js"></script>
+</body>
+</html>

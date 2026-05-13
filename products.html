@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazhalai Mart - Products</title>
+    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="products.css?v=4">
+    <style>
+        /* Force button colors - inline styles have highest priority */
+        .add-to-cart-btn, button.add-to-cart-btn {
+            background: #ff6b6b !important;
+            background-color: #ff6b6b !important;
+            color: white !important;
+        }
+        .add-to-cart-btn:hover, button.add-to-cart-btn:hover {
+            background: #ee5a52 !important;
+            background-color: #ee5a52 !important;
+        }
+        .btn-buy-now, button.btn-buy-now {
+            background: #E6BE7A !important;
+            background-color: #E6BE7A !important;
+            color: #4B2E2B !important;
+        }
+        .btn-buy-now:hover, button.btn-buy-now:hover {
+            background: #d4a95e !important;
+            background-color: #d4a95e !important;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <h1>Mazhalai Mart</h1>
+            <p>Safe & Soft Products for Your Little One</p>
+        </div>
+        <div class="nav">
+            <a href="index.html">Home</a>
+            <a href="products.html" class="active">Products</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">Orders</a>
+        </div>
+    </div>
+    <section class="products container">
+        <h2 class="section-title">Our Products</h2>
+        <div class="product-grid">
+            <div class="product card">
+                <img src="images/lotion.webp" alt="Baby Lotion" title="Gentle moisturizing lotion for soft & smooth baby skin">
+                <div class="product-info">
+                    <h3>Baby Lotion</h3>
+                    <p class="product-desc">Gentle, moisturizing formula that keeps your baby's skin soft, smooth & nourished all day long.</p>
+                    <p class="price">₹250</p>
+                    <div class="btn-group">
+                        <button class="add-to-cart-btn" 
+                                data-id="1" 
+                                data-name="Baby Lotion" 
+                                data-price="250" 
+                                data-image="images/lotion.webp">Add to Cart</button>
+                        <button class="btn-buy-now buy-now-btn" 
+                                data-id="1" 
+                                data-name="Baby Lotion" 
+                                data-price="250" 
+                                data-image="images/lotion.webp">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product card">
+                <img src="images/shampoo.webp" alt="Baby Shampoo" title="Tear-free mild shampoo for delicate baby hair">
+                <div class="product-info">
+                    <h3>Baby Shampoo</h3>
+                    <p class="product-desc">Tear-free, mild shampoo that gently cleanses delicate hair while keeping the scalp healthy.</p>
+                    <p class="price">₹180</p>
+                    <div class="btn-group">
+                        <button class="add-to-cart-btn" 
+                                data-id="2" 
+                                data-name="Baby Shampoo" 
+                                data-price="180" 
+                                data-image="images/shampoo.webp">Add to Cart</button>
+                        <button class="btn-buy-now buy-now-btn" 
+                                data-id="2" 
+                                data-name="Baby Shampoo" 
+                                data-price="180" 
+                                data-image="images/shampoo.webp">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product card">
+                <img src="images/diapers.webp" alt="Baby Diapers" title="Ultra-soft absorbent diapers for all-day comfort">
+                <div class="product-info">
+                    <h3>Baby Diapers</h3>
+                    <p class="product-desc">Ultra-soft, absorbent diapers designed for all-day comfort and leak-free protection.</p>
+                    <p class="price">₹450</p>
+                    <div class="btn-group">
+                        <button class="add-to-cart-btn" 
+                                data-id="3" 
+                                data-name="Baby Diapers" 
+                                data-price="450" 
+                                data-image="images/diapers.webp">Add to Cart</button>
+                        <button class="btn-buy-now buy-now-btn" 
+                                data-id="3" 
+                                data-name="Baby Diapers" 
+                                data-price="450" 
+                                data-image="images/diapers.webp">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product card">
+                <img src="images/nutrition.webp" alt="Baby Nutrition" title="Essential vitamins & minerals for healthy baby growth">
+                <div class="product-info">
+                    <h3>Nutrition Supplement</h3>
+                    <p class="product-desc">Essential vitamins & minerals to support your baby's healthy growth and development.</p>
+                    <p class="price">₹680</p>
+                    <div class="btn-group">
+                        <button class="add-to-cart-btn" 
+                                data-id="4" 
+                                data-name="Nutrition Supplement" 
+                                data-price="680" 
+                                data-image="images/nutrition.webp">Add to Cart</button>
+                        <button class="btn-buy-now buy-now-btn" 
+                                data-id="4" 
+                                data-name="Nutrition Supplement" 
+                                data-price="680" 
+                                data-image="images/nutrition.webp">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <div class="footer">
+        <p></p>
+    </div>
+    
+    <script src="js/cart.js"></script>
+</body>
+</html>

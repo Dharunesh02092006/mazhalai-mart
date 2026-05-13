@@ -1,0 +1,262 @@
+.cart-page {
+    display: flex;
+    gap: 30px;
+    max-width: 1100px;
+}
+.cart-items {
+    flex: 3;
+    padding: 25px 30px;
+}
+.cart-items h2 {
+    color: #4B2E2B;
+    font-size: 22px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d6cdb8;
+}
+.cart-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid #d6cdb8;
+    align-items: center;
+}
+.cart-item:last-child {
+    border-bottom: none;
+}
+.cart-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.item-details {
+    flex: 1;
+}
+.item-details h3 {
+    font-size: 17px;
+    color: #1C1C1C;
+    margin-bottom: 5px;
+}
+.stock {
+    color: #4B2E2B;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.item-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+.item-actions label {
+    font-size: 14px;
+    color: #4B2E2B;
+}
+.item-actions select {
+    padding: 6px 12px;
+    border: 1.5px solid #d6cdb8;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    background: #FFFDF8;
+    color: #1C1C1C;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+.item-actions select:focus {
+    border-color: #E6BE7A;
+    outline: none;
+}
+.delete-link {
+    color: #E76F51;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.delete-link:hover {
+    color: #d45b3f;
+    text-decoration: underline;
+}
+.cart-summary {
+    flex: 1;
+    min-width: 280px;
+    padding: 25px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+.summary-heading {
+    color: #4B2E2B;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.cart-summary hr {
+    border: none;
+    border-top: 1px solid #d6cdb8;
+    margin: 12px 0;
+}
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 15px;
+    color: #1C1C1C;
+}
+.summary-line.total {
+    font-size: 17px;
+    color: #1C1C1C;
+}
+.summary-line.total strong {
+    color: #E76F51;
+}
+.checkout-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+@media (max-width: 768px) {
+    .cart-page {
+        flex-direction: column;
+    }
+    .cart-item img {
+        width: 80px;
+        height: 80px;
+    }
+    .item-actions {
+        flex-wrap: wrap;
+    }
+}
+@media (max-width: 480px) {
+    .cart-items {
+        padding: 16px;
+    }
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+/* Style only numbers and rupees symbols in cart summary */
+.summary-line span:last-child,
+.summary-line.total strong {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+}
+
+
+
+/* Empty Cart Styles */
+.empty-cart {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-cart h3 {
+    margin: 1rem 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.empty-cart p {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.continue-shopping-btn {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-top: 1rem;
+    transition: background-color 0.3s;
+    font-weight: 600;
+}
+
+.continue-shopping-btn:hover {
+    background: #0056b3;
+}
+
+.empty-summary {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #666;
+}
+
+.empty-summary h3 {
+    color: #4B2E2B;
+    margin-bottom: 1rem;
+}
+
+/* Free delivery note */
+.free-delivery-note {
+    background: #d4edda;
+    color: #155724;
+    padding: 0.5rem;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+/* Continue shopping link in summary */
+.continue-shopping {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.continue-shopping a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.continue-shopping a:hover {
+    text-decoration: underline;
+}
+
+/* Item total price */
+.item-total {
+    text-align: right;
+    min-width: 80px;
+}
+
+.item-price {
+    font-weight: bold;
+    color: #E76F51;
+    font-size: 1.1rem;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+
+
+/* Enhanced responsive design */
+@media (max-width: 768px) {
+    .cart-item {
+        gap: 15px;
+    }
+    
+    .item-total {
+        align-self: center;
+        margin-top: 0.5rem;
+    }
+}

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Add Product - Mazhalai Mart Admin</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../admin-styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h1>Mazhalai Mart</h1>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="../dashboard.html" class="admin-nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="view_products.html" class="admin-nav-item active">
+                    <i>📦</i> Products
+                </a>
+                <a href="../orders/view_orders.html" class="admin-nav-item">
+                    <i>🛒</i> Orders
+                </a>
+                <a href="../users/view_users.html" class="admin-nav-item">
+                    <i>👥</i> Users
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <header class="admin-header">
+                <h1 id="pageHeading">Add New Product</h1>
+                <div class="admin-user-info">
+                    <div class="admin-user-details">
+                        <p class="admin-user-name" id="adminName">Loading...</p>
+                        <p class="admin-user-role" id="adminRole">Loading...</p>
+                    </div>
+                    <a href="../logout.php" class="admin-logout-btn">Logout</a>
+                </div>
+            </header>
+            
+            <main class="admin-content">
+                <div class="page-header">
+                    <h2 class="page-title" id="pageSubheading">Add New Product</h2>
+                    <a href="view_products.html" class="admin-btn">← Back to Products</a>
+                </div>
+                
+                <div id="alertMessage" class="alert" style="display: none;"></div>
+                
+                <!-- Loading Message -->
+                <div id="loadingMessage" class="loading-message" style="display: none;">Loading product details...</div>
+                
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    Failed to load product details. Please try again.
+                </div>
+                
+                <form id="addProductForm" class="admin-form" enctype="multipart/form-data" style="display: none;">
+                    <input type="hidden" id="productId" name="id">
+                    
+                    <div class="form-group">
+                        <label for="name">Product Name *</label>
+                        <input type="text" id="name" name="name" required 
+                               placeholder="Enter product name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" 
+                                  placeholder="Enter product description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price">Price (₹) *</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0" required 
+                               placeholder="0.00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stock_quantity">Stock Quantity *</label>
+                        <input type="number" id="stock_quantity" name="stock_quantity" min="0" required 
+                               placeholder="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Skin Care">Skin Care</option>
+                            <option value="Bath & Body">Bath & Body</option>
+                            <option value="Diapers">Diapers</option>
+                            <option value="Nutrition">Nutrition</option>
+                            <option value="Feeding">Feeding</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Clothing">Clothing</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Product Image</label>
+                        
+                        <!-- Current Image Section (for edit mode) -->
+                        <div id="currentImageSection" style="display: none; margin-bottom: 15px;">
+                            <label>Current Image:</label>
+                            <div class="image-preview">
+                                <img id="currentImage" src="" alt="Current product image" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #E6BE7A;">
+                            </div>
+                        </div>
+                        
+                        <div class="file-upload-area" onclick="document.getElementById('image').click()">
+                            <div class="upload-icon">📷</div>
+                            <p class="upload-text" id="uploadText">Click to upload product image</p>
+                            <input type="file" id="image" name="image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                        </div>
+                        <img id="image-preview" class="image-preview" style="display: none;">
+                        <small style="color: #666; margin-top: 10px; display: block;">
+                            <span id="imageHelpText">Supported formats: JPEG, PNG, GIF, WebP. Maximum size: 5MB</span>
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" id="submitBtn" class="admin-btn">
+                            <span class="btn-text" id="submitText">Add Product</span>
+                            <span class="btn-loading" id="submitLoading" style="display: none;">Adding Product...</span>
+                        </button>
+                        <a href="view_products.html" class="admin-btn admin-btn-danger">Cancel</a>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        let isEditMode = false;
+        let productId = null;
+        
+        $(document).ready(function() {
+            // Check if we're in edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            productId = urlParams.get('id');
+            
+            if (productId) {
+                isEditMode = true;
+                setupEditMode();
+                loadProductDetails();
+                loadAdminInfo();
+            } else {
+                setupAddMode();
+                loadAdminInfo();
+                showForm();
+            }
+            
+            $('#addProductForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate form
+                if (!validateForm()) {
+                    return;
+                }
+                
+                // Show loading state
+                showLoading();
+                
+                // Create FormData object
+                const formData = new FormData(this);
+                
+                // Determine API endpoint
+                const apiUrl = isEditMode ? 'edit_product.php' : '../api/add_product.php';
+                
+                // Submit form
+                $.ajax({
+                    url: apiUrl,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            const message = isEditMode ? 'Product updated successfully!' : 'Product added successfully!';
+                            showAlert(message, 'success');
+                            setTimeout(function() {
+                                window.location.href = 'view_products.html';
+                            }, 1500);
+                        } else {
+                            showAlert(response.message || 'Failed to save product', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        let message = isEditMode ? 'Failed to update product. Please try again.' : 'Failed to add product. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        showAlert(message, 'error');
+                    },
+                    complete: function() {
+                        hideLoading();
+                    }
+                });
+            });
+        });
+        
+        function setupEditMode() {
+            // Update page titles and labels
+            document.title = 'Edit Product - Mazhalai Mart Admin';
+            $('#pageTitle').text('Edit Product - Mazhalai Mart Admin');
+            $('#pageHeading').text('Edit Product');
+            $('#pageSubheading').text('Edit Product');
+            $('#submitText').text('Update Product');
+            $('#submitLoading').text('Updating Product...');
+            $('#imageHelpText').text('Leave empty to keep current image. Supported formats: JPEG, PNG, GIF, WebP. Maximum size: 5MB');
+            $('#uploadText').text('Click to upload new product image');
+        }
+        
+        function setupAddMode() {
+            // Ensure add mode labels (default)
+            document.title = 'Add Product - Mazhalai Mart Admin';
+            $('#pageTitle').text('Add Product - Mazhalai Mart Admin');
+            $('#pageHeading').text('Add New Product');
+            $('#pageSubheading').text('Add New Product');
+            $('#submitText').text('Add Product');
+            $('#submitLoading').text('Adding Product...');
+        }
+        
+        function loadProductDetails() {
+            showLoading();
+            
+            $.ajax({
+                url: '../api/products.php?id=' + productId,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.products && response.products.length > 0) {
+                        populateForm(response.products[0]);
+                        hideLoading();
+                        showForm();
+                    } else {
+                        showError('Product not found.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Load product error:', error);
+                    if (xhr.status === 401) {
+                        showError('Authentication required. Please <a href="../login.html">login again</a>.');
+                    } else {
+                        showError('Failed to load product details. Please try again.');
+                    }
+                }
+            });
+        }
+        
+        function populateForm(product) {
+            $('#productId').val(product.id);
+            $('#name').val(product.name);
+            $('#description').val(product.description || '');
+            $('#price').val(product.price);
+            $('#stock_quantity').val(product.stock_quantity);
+            $('#category').val(product.category);
+            $('#status').val(product.status);
+            
+            // Show current image if exists
+            if (product.image_path) {
+                $('#currentImage').attr('src', '../../' + product.image_path);
+                $('#currentImageSection').show();
+            }
+        }
+        
+        function showForm() {
+            $('#addProductForm').show();
+            $('#loadingMessage').hide();
+            $('#errorMessage').hide();
+        }
+        
+        function showError(message) {
+            $('#loadingMessage').hide();
+            $('#errorMessage').html(message).show();
+            $('#addProductForm').hide();
+        }
+        
+        function loadAdminInfo() {
+            $.ajax({
+                url: '../api/admin_info.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.admin) {
+                        $('#adminName').text(response.admin.full_name);
+                        $('#adminRole').text(response.admin.role);
+                    } else {
+                        $('#adminName').text('Administrator');
+                        $('#adminRole').text('Admin');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to load admin info:', error);
+                    $('#adminName').text('Administrator');
+                    $('#adminRole').text('Admin');
+                }
+            });
+        }
+        
+        function validateForm() {
+            const name = $('#name').val().trim();
+            const price = parseFloat($('#price').val());
+            const stockQuantity = parseInt($('#stock_quantity').val());
+            const category = $('#category').val();
+            
+            if (!name) {
+                showAlert('Product name is required', 'error');
+                $('#name').focus();
+                return false;
+            }
+            
+            if (isNaN(price) || price <= 0) {
+                showAlert('Price must be greater than 0', 'error');
+                $('#price').focus();
+                return false;
+            }
+            
+            if (isNaN(stockQuantity) || stockQuantity < 0) {
+                showAlert('Stock quantity cannot be negative', 'error');
+                $('#stock_quantity').focus();
+                return false;
+            }
+            
+            if (!category) {
+                showAlert('Category is required', 'error');
+                $('#category').focus();
+                return false;
+            }
+            
+            // Validate image file if selected
+            const imageFile = $('#image')[0].files[0];
+            if (imageFile) {
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
+                if (!allowedTypes.includes(imageFile.type)) {
+                    showAlert('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.', 'error');
+                    return false;
+                }
+                
+                if (imageFile.size > maxSize) {
+                    showAlert('File size too large. Maximum 5MB allowed.', 'error');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('image-preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    
+                    // Update upload area text
+                    const uploadText = document.querySelector('.upload-text');
+                    if (isEditMode) {
+                        uploadText.textContent = 'New image selected: ' + input.files[0].name;
+                    } else {
+                        uploadText.textContent = 'Image selected: ' + input.files[0].name;
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function showAlert(message, type) {
+            const alertDiv = $('#alertMessage');
+            alertDiv.removeClass('alert-success alert-error').addClass('alert-' + type);
+            alertDiv.text(message).fadeIn();
+            
+            // Scroll to top to show alert
+            $('html, body').animate({ scrollTop: 0 }, 300);
+            
+            if (type === 'success') {
+                setTimeout(function() {
+                    alertDiv.fadeOut();
+                }, 3000);
+            }
+        }
+        
+        function showLoading() {
+            if (isEditMode && !$('#addProductForm').is(':visible')) {
+                $('#loadingMessage').show();
+            } else {
+                $('#submitBtn').prop('disabled', true);
+                $('#submitText').hide();
+                $('#submitLoading').show();
+            }
+        }
+        
+        function hideLoading() {
+            $('#loadingMessage').hide();
+            $('#submitBtn').prop('disabled', false);
+            $('#submitText').show();
+            $('#submitLoading').hide();
+        }
+        
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.file-upload-area');
+        const fileInput = document.getElementById('image');
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                previewImage(fileInput);
+            }
+        });
+    </script>
+</body>
+</html>

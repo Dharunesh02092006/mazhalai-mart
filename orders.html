@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazhalai Mart - My Orders</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="orders.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <h1>Mazhalai Mart</h1>
+            <p>Safe & Soft Products for Your Little One</p>
+        </div>
+        <div class="nav">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html" class="active">Orders</a>
+        </div>
+    </div>
+    <section class="orders-page container">
+        <h2 class="section-title">My Orders</h2>
+        <div id="orders-container">
+            <!-- Orders will be loaded dynamically -->
+            <div class="loading-orders">
+                <p>Loading your orders...</p>
+            </div>
+        </div>
+        <div id="no-orders" class="no-orders" style="display: none;">
+            <div class="no-orders-icon">📦</div>
+            <h3>No Orders Yet</h3>
+            <p>You haven't placed any orders yet. Start shopping to see your orders here!</p>
+            <a href="products.html" class="btn btn-continue">Start Shopping</a>
+        </div>
+    </section>
+    <div class="footer">
+        <p></p>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/orders.js"></script>
+</body>
+</html>

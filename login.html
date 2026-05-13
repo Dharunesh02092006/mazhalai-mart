@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mazhalai Mart</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Mazhalai Mart</h1>
+                <p>Safe & Soft Products for Your Little One</p>
+                <h2>Welcome Back</h2>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    <span class="error-message" id="password-error"></span>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember_me" name="remember_me">
+                        <span class="checkmark"></span>
+                        Remember me for 30 days
+                    </label>
+                </div>
+                
+                <button type="submit" class="auth-btn" id="login-btn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loading" style="display: none;">Signing in...</span>
+                </button>
+                
+                <div class="error-message" id="form-error"></div>
+                <div class="success-message" id="form-success"></div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+                <p><a href="index.html">← Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('message') === 'logged_out') {
+                showMessage('You have been logged out successfully', 'success');
+            }
+            if (urlParams.get('error') === 'logout_error') {
+                showMessage('There was an error during logout', 'error');
+            }
+            
+            // Handle form submission
+            $('#login-form').on('submit', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+            
+            // Clear errors on input
+            $('input').on('input', function() {
+                clearFieldError($(this).attr('name'));
+                clearFormMessages();
+            });
+        });
+
+        function handleLogin() {
+            const formData = {
+                email: $('#email').val().trim(),
+                password: $('#password').val(),
+                remember_me: $('#remember_me').is(':checked')
+            };
+            
+            // Clear previous errors
+            clearAllErrors();
+            
+            // Basic validation
+            if (!formData.email) {
+                showFieldError('email', 'Email is required');
+                return;
+            }
+            
+            if (!formData.password) {
+                showFieldError('password', 'Password is required');
+                return;
+            }
+            
+            // Show loading state
+            setLoadingState(true);
+            
+            // Make API request
+            fetch('auth/login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                setLoadingState(false);
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'index.html';
+                    }, 1000);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                setLoadingState(false);
+                console.error('Login error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+            });
+        }
+
+        function setLoadingState(loading) {
+            const btn = $('#login-btn');
+            const btnText = $('.btn-text');
+            const btnLoading = $('.btn-loading');
+            
+            if (loading) {
+                btn.prop('disabled', true);
+                btnText.hide();
+                btnLoading.show();
+            } else {
+                btn.prop('disabled', false);
+                btnText.show();
+                btnLoading.hide();
+            }
+        }
+
+        function showFieldError(field, message) {
+            $(`#${field}-error`).text(message).show();
+            $(`#${field}`).addClass('error');
+        }
+
+        function clearFieldError(field) {
+            $(`#${field}-error`).text('').hide();
+            $(`#${field}`).removeClass('error');
+        }
+
+        function clearAllErrors() {
+            $('.error-message').text('').hide();
+            $('input').removeClass('error');
+        }
+
+        function clearFormMessages() {
+            $('#form-error, #form-success').text('').hide();
+        }
+
+        function showMessage(message, type) {
+            clearFormMessages();
+            $(`#form-${type}`).text(message).show();
+        }
+    </script>
+</body>
+</html>

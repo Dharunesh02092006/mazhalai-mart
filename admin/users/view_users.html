@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Management - Mazhalai Mart Admin</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../admin-styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h1>Mazhalai Mart</h1>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="../dashboard.html" class="admin-nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="../products/view_products.html" class="admin-nav-item">
+                    <i>📦</i> Products
+                </a>
+                <a href="../orders/view_orders.html" class="admin-nav-item">
+                    <i>🛒</i> Orders
+                </a>
+                <a href="view_users.html" class="admin-nav-item active">
+                    <i>👥</i> Users
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <header class="admin-header">
+                <h1>Users Management</h1>
+                <div class="admin-user-info">
+                    <div class="admin-user-details">
+                        <p class="admin-user-name" id="adminName">Loading...</p>
+                        <p class="admin-user-role" id="adminRole">Loading...</p>
+                    </div>
+                    <a href="../logout.php" class="admin-logout-btn">Logout</a>
+                </div>
+            </header>
+            
+            <main class="admin-content">
+                <!-- User Statistics -->
+                <div class="dashboard-stats" id="userStats">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <h3 class="stat-number" id="totalUsers">-</h3>
+                        <p class="stat-label">Total Users</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <h3 class="stat-number" id="activeUsers">-</h3>
+                        <p class="stat-label">Active Users</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🚫</div>
+                        <h3 class="stat-number" id="blockedUsers">-</h3>
+                        <p class="stat-label">Blocked Users</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <h3 class="stat-number" id="newUsers">-</h3>
+                        <p class="stat-label">New This Month</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🛒</div>
+                        <h3 class="stat-number" id="activeCustomers">-</h3>
+                        <p class="stat-label">Users with Orders</p>
+                    </div>
+                </div>
+                
+                <div class="page-header">
+                    <h2 class="page-title">All Users (<span id="userCount">0</span>)</h2>
+                </div>
+                
+                <!-- Search and Filters -->
+                <div class="search-filters">
+                    <div class="search-row">
+                        <div class="form-group">
+                            <label for="search">Search Users</label>
+                            <input type="text" id="search" name="search" 
+                                   placeholder="Username, email, or full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateFrom">Joined From</label>
+                            <input type="date" id="dateFrom" name="dateFrom">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateTo">Joined To</label>
+                            <input type="date" id="dateTo" name="dateTo">
+                        </div>
+                        
+                        <button type="button" id="searchBtn" class="admin-btn">Search</button>
+                        <button type="button" id="clearBtn" class="admin-btn admin-btn-danger">Clear</button>
+                    </div>
+                </div>
+                
+                <!-- Users Table -->
+                <div class="admin-table-container">
+                    <div id="loadingMessage" class="loading-message">Loading users...</div>
+                    <div id="usersTable" style="display: none;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User Info</th>
+                                    <th>Contact</th>
+                                    <th>Orders</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="noUsers" class="no-data" style="display: none;">
+                        No users found.
+                    </div>
+                    
+                    <div id="errorMessage" class="error-message" style="display: none;">
+                        Failed to load users. Please try again.
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="pagination" class="pagination" style="display: none;">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            loadUsers();
+            loadUserStats();
+            loadAdminInfo();
+            
+            // Search functionality
+            $('#searchBtn').on('click', function() {
+                loadUsers();
+            });
+            
+            $('#clearBtn').on('click', function() {
+                $('#search').val('');
+                $('#status').val('');
+                $('#dateFrom').val('');
+                $('#dateTo').val('');
+                loadUsers();
+            });
+            
+            // Enter key search
+            $('#search').on('keypress', function(e) {
+                if (e.which === 13) {
+                    loadUsers();
+                }
+            });
+        });
+        
+        function loadUsers(page = 1) {
+            showLoading();
+            
+            const filters = {
+                search: $('#search').val(),
+                status: $('#status').val(),
+                date_from: $('#dateFrom').val(),
+                date_to: $('#dateTo').val(),
+                page: page
+            };
+            
+            $.ajax({
+                url: '../api/users_fixed.php',
+                method: 'GET',
+                data: filters,
+                success: function(response) {
+                    console.log('Users response:', response);
+                    if (response.success) {
+                        displayUsers(response.users);
+                        updateUserCount(response.total);
+                        displayPagination(response.pagination);
+                    } else {
+                        console.error('Users API error:', response.message);
+                        showError('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', error, xhr.responseText);
+                    showError('Network error: ' + error);
+                }
+            });
+        }
+        
+        function loadUserStats() {
+            $.ajax({
+                url: '../api/user_stats_fixed.php',
+                method: 'GET',
+                success: function(response) {
+                    console.log('User stats response:', response);
+                    if (response.success) {
+                        updateUserStats(response.stats);
+                    } else {
+                        console.error('User stats error:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('User stats AJAX error:', error);
+                }
+            });
+        }
+        
+        function updateUserStats(stats) {
+            $('#totalUsers').text(stats.total || 0);
+            $('#activeUsers').text(stats.active || 0);
+            $('#blockedUsers').text(stats.blocked || 0);
+            $('#newUsers').text(stats.new_this_month || 0);
+            $('#activeCustomers').text(stats.active_customers || 0);
+        }
+        
+        function displayUsers(users) {
+            hideLoading();
+            
+            if (users.length === 0) {
+                showNoUsers();
+                return;
+            }
+            
+            let html = '';
+            users.forEach(function(user) {
+                html += `<tr>
+                    <td>
+                        <strong>${escapeHtml(user.username)}</strong><br>
+                        ${user.full_name && user.full_name !== user.username ? `<small style="color: #666;">${escapeHtml(user.full_name)}</small>` : ''}
+                    </td>
+                    <td>
+                        ${escapeHtml(user.email)}<br>
+                        ${user.phone ? `<small style="color: #666;">${escapeHtml(user.phone)}</small>` : '<small style="color: #999;">No phone</small>'}
+                    </td>
+                    <td>
+                        <strong>${user.total_orders || 0} orders</strong><br>
+                        <small style="color: #666;">₹${(user.total_spent || 0).toLocaleString()} spent</small>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${user.status}">${user.status}</span>
+                        ${user.status === 'blocked' && user.blocked_at ? `
+                            <br><small style="color: #999;">
+                                Blocked: ${formatDate(user.blocked_at)}
+                            </small>
+                        ` : ''}
+                    </td>
+                    <td>
+                        ${formatDate(user.created_at)}<br>
+                        <small style="color: #666;">${formatTime(user.created_at)}</small>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            ${user.status === 'active' ? 
+                                `<button onclick="blockUser(${user.id}, '${escapeHtml(user.username)}')" class="admin-btn admin-btn-small admin-btn-danger">Block</button>` :
+                                `<button onclick="unblockUser(${user.id}, '${escapeHtml(user.username)}')" class="admin-btn admin-btn-small admin-btn-success">Unblock</button>`
+                            }
+                            <button onclick="viewUserOrders(${user.id}, '${escapeHtml(user.username)}')" class="admin-btn admin-btn-small">Orders</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            $('#usersTableBody').html(html);
+            $('#usersTable').show();
+            $('#noUsers').hide();
+            $('#errorMessage').hide();
+        }
+        
+        function updateUserCount(total) {
+            $('#userCount').text(total);
+        }
+        
+        function displayPagination(pagination) {
+            if (pagination.total_pages <= 1) {
+                $('#pagination').hide();
+                return;
+            }
+            
+            let html = '<div style="text-align: center; margin-top: 20px;">';
+            
+            if (pagination.current_page > 1) {
+                html += `<button onclick="loadUsers(${pagination.current_page - 1})" class="admin-btn admin-btn-small">← Previous</button> `;
+            }
+            
+            html += `<span style="margin: 0 15px;">Page ${pagination.current_page} of ${pagination.total_pages}</span>`;
+            
+            if (pagination.current_page < pagination.total_pages) {
+                html += ` <button onclick="loadUsers(${pagination.current_page + 1})" class="admin-btn admin-btn-small">Next →</button>`;
+            }
+            
+            html += '</div>';
+            $('#pagination').html(html).show();
+        }
+        
+        function showLoading() {
+            $('#loadingMessage').show();
+            $('#usersTable').hide();
+            $('#noUsers').hide();
+            $('#errorMessage').hide();
+        }
+        
+        function hideLoading() {
+            $('#loadingMessage').hide();
+        }
+        
+        function showNoUsers() {
+            $('#usersTable').hide();
+            $('#noUsers').show();
+            $('#errorMessage').hide();
+        }
+        
+        function showError(message) {
+            hideLoading();
+            $('#usersTable').hide();
+            $('#noUsers').hide();
+            $('#errorMessage').text(message || 'Failed to load users. Please try again.').show();
+        }
+        
+        function blockUser(userId, username) {
+            if (confirm(`Are you sure you want to block user "${username}"?\n\nBlocked users will not be able to login or place orders.`)) {
+                $.ajax({
+                    url: 'block_user_fixed.php',
+                    method: 'POST',
+                    data: {
+                        user_id: userId,
+                        action: 'block'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('User blocked successfully!');
+                            loadUsers();
+                            loadUserStats();
+                        } else {
+                            alert('Failed to block user: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Failed to block user. Please try again.');
+                    }
+                });
+            }
+        }
+        
+        function unblockUser(userId, username) {
+            if (confirm(`Are you sure you want to unblock user "${username}"?`)) {
+                $.ajax({
+                    url: 'block_user_fixed.php',
+                    method: 'POST',
+                    data: {
+                        user_id: userId,
+                        action: 'unblock'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('User unblocked successfully!');
+                            loadUsers();
+                            loadUserStats();
+                        } else {
+                            alert('Failed to unblock user: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Failed to unblock user. Please try again.');
+                    }
+                });
+            }
+        }
+        
+        function viewUserOrders(userId, username) {
+            window.open(`../orders/view_orders.html?user_id=${userId}&search=${encodeURIComponent(username)}`, '_blank');
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+        
+        function formatTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function loadAdminInfo() {
+            $.ajax({
+                url: '../api/admin_info.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.admin) {
+                        $('#adminName').text(response.admin.full_name);
+                        $('#adminRole').text(response.admin.role);
+                    } else {
+                        $('#adminName').text('Administrator');
+                        $('#adminRole').text('Admin');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to load admin info:', error);
+                    $('#adminName').text('Administrator');
+                    $('#adminRole').text('Admin');
+                }
+            });
+        }
+    </script>
+    
+    <!-- Responsive Admin JavaScript -->
+    <script src="../admin-responsive.js"></script>
+</body>
+</html>
