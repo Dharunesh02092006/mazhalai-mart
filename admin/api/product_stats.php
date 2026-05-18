@@ -3,9 +3,18 @@
  * Product Statistics API for Mazhalai Mart Admin Panel
  */
 
-require_once '../admin_check.php';
+session_start();
 
 header('Content-Type: application/json');
+
+// Check if admin is logged in
+if (!isset($_SESSION['admin_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+    exit;
+}
+
+require_once __DIR__ . '/../../config/database.php';
 
 try {
     $pdo = getDBConnection();

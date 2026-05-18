@@ -1,7 +1,8 @@
 // Orders page functionality for Mazhalai Mart
 
 $(document).ready(function() {
-    loadOrders();
+    // Check if user is logged in before loading orders
+    checkAuthBeforeLoadingOrders();
     
     // Reorder button click handler
     $(document).on('click', '.btn-reorder', function(e) {
@@ -11,10 +12,34 @@ $(document).ready(function() {
     });
 });
 
+function checkAuthBeforeLoadingOrders() {
+    fetch('auth/user_status.php', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.authenticated) {
+            // User not logged in - redirect to login
+            alert('Please log in to view your orders.');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // User is logged in - load orders
+        loadOrders();
+    })
+    .catch(error => {
+        console.error('Auth check error:', error);
+        alert('Please log in to view your orders.');
+        window.location.href = 'login.html';
+    });
+}
+
 function loadOrders() {
     // Only fetch from database - no localStorage
     fetchOrdersFromDatabase().then(dbOrders => {
-        if (dbOrders.length === 0) {
+        if (!dbOrders || dbOrders.length === 0) {
             showNoOrders();
         } else {
             displayOrders(dbOrders);

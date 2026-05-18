@@ -3,15 +3,24 @@
  * Add Product API for Mazhalai Mart Admin Panel
  */
 
-require_once '../admin_check.php';
+session_start();
 
 header('Content-Type: application/json');
+
+// Check if admin is logged in
+if (!isset($_SESSION['admin_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
+
+require_once __DIR__ . '/../../config/database.php';
 
 try {
     $name = trim($_POST['name'] ?? '');
@@ -59,8 +68,33 @@ try {
     
     $productId = $pdo->lastInsertId();
     
-    // Log activity
-    logAdminActivity('create', 'product', $productId, "Created product: $name");
+    // Log activity (optional - don't fail if logging fails)
+    try {
+        if (function_exists('logAdminActivity')) {
+            logAdminActivity('create', 'product', $productId, "Created product: $name");
+        } else {
+            // Try to log to admin_activity_log table
+            try {
+                $logStmt = $pdo->prepare("
+                    INSERT INTO admin_activity_log (admin_id, action, target_type, target_id, description, ip_address, user_agent) 
+                    VALUES (?, 'create_product', 'product', ?, ?, ?, ?)
+                ");
+                $logStmt->execute([
+                    $_SESSION['admin_id'] ?? 1,
+                    $productId,
+                    "Created product: $name",
+                    $_SERVER['REMOTE_ADDR'] ?? null,
+                    $_SERVER['HTTP_USER_AGENT'] ?? null
+                ]);
+            } catch (Exception $logError) {
+                // Silently fail - logging is optional
+                error_log("Failed to log activity: " . $logError->getMessage());
+            }
+        }
+    } catch (Exception $e) {
+        // Silently fail on any logging error
+        error_log("Activity logging error: " . $e->getMessage());
+    }
     
     echo json_encode([
         'success' => true,

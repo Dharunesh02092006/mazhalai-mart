@@ -28,6 +28,7 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/user-cart.js"></script>
 </head>
 <body>
     <div class="header">
@@ -44,87 +45,14 @@
     </div>
     <section class="products container">
         <h2 class="section-title">Our Products</h2>
-        <div class="product-grid">
-            <div class="product card">
-                <img src="images/lotion.webp" alt="Baby Lotion" title="Gentle moisturizing lotion for soft & smooth baby skin">
-                <div class="product-info">
-                    <h3>Baby Lotion</h3>
-                    <p class="product-desc">Gentle, moisturizing formula that keeps your baby's skin soft, smooth & nourished all day long.</p>
-                    <p class="price">₹250</p>
-                    <div class="btn-group">
-                        <button class="add-to-cart-btn" 
-                                data-id="1" 
-                                data-name="Baby Lotion" 
-                                data-price="250" 
-                                data-image="images/lotion.webp">Add to Cart</button>
-                        <button class="btn-buy-now buy-now-btn" 
-                                data-id="1" 
-                                data-name="Baby Lotion" 
-                                data-price="250" 
-                                data-image="images/lotion.webp">Buy Now</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product card">
-                <img src="images/shampoo.webp" alt="Baby Shampoo" title="Tear-free mild shampoo for delicate baby hair">
-                <div class="product-info">
-                    <h3>Baby Shampoo</h3>
-                    <p class="product-desc">Tear-free, mild shampoo that gently cleanses delicate hair while keeping the scalp healthy.</p>
-                    <p class="price">₹180</p>
-                    <div class="btn-group">
-                        <button class="add-to-cart-btn" 
-                                data-id="2" 
-                                data-name="Baby Shampoo" 
-                                data-price="180" 
-                                data-image="images/shampoo.webp">Add to Cart</button>
-                        <button class="btn-buy-now buy-now-btn" 
-                                data-id="2" 
-                                data-name="Baby Shampoo" 
-                                data-price="180" 
-                                data-image="images/shampoo.webp">Buy Now</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product card">
-                <img src="images/diapers.webp" alt="Baby Diapers" title="Ultra-soft absorbent diapers for all-day comfort">
-                <div class="product-info">
-                    <h3>Baby Diapers</h3>
-                    <p class="product-desc">Ultra-soft, absorbent diapers designed for all-day comfort and leak-free protection.</p>
-                    <p class="price">₹450</p>
-                    <div class="btn-group">
-                        <button class="add-to-cart-btn" 
-                                data-id="3" 
-                                data-name="Baby Diapers" 
-                                data-price="450" 
-                                data-image="images/diapers.webp">Add to Cart</button>
-                        <button class="btn-buy-now buy-now-btn" 
-                                data-id="3" 
-                                data-name="Baby Diapers" 
-                                data-price="450" 
-                                data-image="images/diapers.webp">Buy Now</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product card">
-                <img src="images/nutrition.webp" alt="Baby Nutrition" title="Essential vitamins & minerals for healthy baby growth">
-                <div class="product-info">
-                    <h3>Nutrition Supplement</h3>
-                    <p class="product-desc">Essential vitamins & minerals to support your baby's healthy growth and development.</p>
-                    <p class="price">₹680</p>
-                    <div class="btn-group">
-                        <button class="add-to-cart-btn" 
-                                data-id="4" 
-                                data-name="Nutrition Supplement" 
-                                data-price="680" 
-                                data-image="images/nutrition.webp">Add to Cart</button>
-                        <button class="btn-buy-now buy-now-btn" 
-                                data-id="4" 
-                                data-name="Nutrition Supplement" 
-                                data-price="680" 
-                                data-image="images/nutrition.webp">Buy Now</button>
-                    </div>
-                </div>
-            </div>
+        <div id="loading-indicator" style="text-align: center; padding: 40px;">
+            <p>Loading products...</p>
+        </div>
+        <div id="product-grid" class="product-grid">
+            <!-- Products will be loaded dynamically here -->
+        </div>
+        <div id="error-message" style="display: none; text-align: center; color: #d32f2f; padding: 20px;">
+            <p>Sorry, we couldn't load the products. Please try again later.</p>
         </div>
     </section>
     
@@ -132,6 +60,195 @@
         <p></p>
     </div>
     
-    <script src="js/cart.js"></script>
+    <script src="js/user-cart.js"></script>
+    
+    <script>
+        /**
+         * Load products dynamically from API
+         */
+        function loadProducts(page = 1, search = '', category = '') {
+            const productGrid = document.getElementById('product-grid');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const errorMessage = document.getElementById('error-message');
+            
+            // Show loading
+            loadingIndicator.style.display = 'block';
+            errorMessage.style.display = 'none';
+            productGrid.innerHTML = '';
+            
+            // Build API URL
+            let apiUrl = 'api/products.php?page=' + page;
+            if (search) {
+                apiUrl += '&search=' + encodeURIComponent(search);
+            }
+            if (category) {
+                apiUrl += '&category=' + encodeURIComponent(category);
+            }
+            
+            // Fetch products
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('API error');
+                    return response.json();
+                })
+                .then(data => {
+                    loadingIndicator.style.display = 'none';
+                    
+                    if (!data.success || !data.products || data.products.length === 0) {
+                        errorMessage.innerHTML = '<p>No products available. Please check back later!</p>';
+                        errorMessage.style.display = 'block';
+                        return;
+                    }
+                    
+                    // Render products
+                    data.products.forEach(product => {
+                        const productHTML = createProductCard(product);
+                        productGrid.innerHTML += productHTML;
+                    });
+                    
+                    // Reattach event listeners for new buttons
+                    attachCartButtonListeners();
+                })
+                .catch(error => {
+                    console.error('Error loading products:', error);
+                    loadingIndicator.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                });
+        }
+        
+        /**
+         * Create HTML for a product card
+         */
+        function createProductCard(product) {
+            // Determine image source based on image_path
+            let imageUrl = 'images/placeholder.jpg'; // Fallback
+            
+            if (product.image_path) {
+                const imagePath = product.image_path.trim();
+                
+                // Check if image_path starts with a directory (images/, uploads/, etc.)
+                if (imagePath.startsWith('images/') || imagePath.startsWith('uploads/')) {
+                    // These are full relative paths from root
+                    imageUrl = imagePath;
+                } else if (imagePath.startsWith('admin/')) {
+                    // Already has admin prefix
+                    imageUrl = imagePath;
+                } else {
+                    // Assume it's an uploaded file without prefix
+                    // Check if it looks like a filename from admin uploads
+                    if (imagePath.includes('product_') || imagePath.includes('.png') || imagePath.includes('.jpg') || imagePath.includes('.jpeg') || imagePath.includes('.gif')) {
+                        imageUrl = 'admin/uploads/products/' + imagePath;
+                    } else {
+                        // Default case
+                        imageUrl = 'images/' + imagePath;
+                    }
+                }
+            }
+            
+            const price = parseFloat(product.price).toLocaleString('en-IN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+            
+            return `
+                <div class="product card">
+                    <img src="${imageUrl}" alt="${product.name}" title="${product.description || product.name}" onerror="this.src='images/placeholder.jpg'">
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p class="product-desc">${product.description || 'High-quality baby product'}</p>
+                        <p class="price">₹${price}</p>
+                        <div class="btn-group">
+                            <button class="add-to-cart-btn" 
+                                    data-id="${product.id}" 
+                                    data-name="${product.name}" 
+                                    data-price="${product.price}" 
+                                    data-image="${imageUrl}">Add to Cart</button>
+                            <button class="btn-buy-now buy-now-btn" 
+                                    data-id="${product.id}" 
+                                    data-name="${product.name}" 
+                                    data-price="${product.price}" 
+                                    data-image="${imageUrl}">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        /**
+         * Check if user is logged in
+         */
+        function isUserLoggedIn(callback) {
+            fetch('auth/user_status.php', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                callback(data.authenticated);
+            })
+            .catch(error => {
+                console.error('Auth check error:', error);
+                callback(false);
+            });
+        }
+        
+        /**
+         * Attach event listeners to cart buttons (for dynamically added elements)
+         */
+        function attachCartButtonListeners() {
+            // Add to Cart buttons
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    
+                    isUserLoggedIn(function(isLoggedIn) {
+                        if (!isLoggedIn) {
+                            alert('Please log in or sign up to add items to cart.');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        
+                        const productData = {
+                            id: btn.dataset.id,
+                            name: btn.dataset.name,
+                            price: btn.dataset.price,
+                            image: btn.dataset.image,
+                            quantity: 1
+                        };
+                        
+                        if (typeof addToUserCart === 'function') {
+                            addToUserCart(productData.id, productData.name, productData.price, productData.image, productData.quantity);
+                        } else if (typeof addToCart === 'function') {
+                            addToCart(productData);
+                        }
+                    });
+                };
+            });
+            
+            // Buy Now buttons
+            document.querySelectorAll('.buy-now-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    
+                    isUserLoggedIn(function(isLoggedIn) {
+                        if (!isLoggedIn) {
+                            alert('Please log in or sign up to purchase products.');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        
+                        if (typeof buyNow === 'function') {
+                            buyNow(btn.dataset.id, btn.dataset.name, btn.dataset.price, btn.dataset.image);
+                        }
+                    });
+                };
+            });
+        }
+        
+        // Load products when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+    </script>
 </body>
 </html>

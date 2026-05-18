@@ -10,44 +10,71 @@ $(document).ready(function() {
     $('.add-to-cart-btn').click(function(e) {
         e.preventDefault();
         
-        const productData = {
-            id: $(this).data('id'),
-            name: $(this).data('name'),
-            price: parseFloat($(this).data('price')),
-            image: $(this).data('image'),
-            quantity: 1
-        };
-        
-        // Use user-specific cart if logged in, otherwise fallback to localStorage
-        if (typeof addToUserCart === 'function') {
-            addToUserCart(productData.id, productData.name, productData.price, productData.image, productData.quantity);
-        } else {
-            addToCart(productData);
-        }
+        checkUserAuthentication(function(isLoggedIn) {
+            if (!isLoggedIn) {
+                alert('Please log in or sign up to add items to cart.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const productData = {
+                id: $(this).data('id'),
+                name: $(this).data('name'),
+                price: parseFloat($(this).data('price')),
+                image: $(this).data('image'),
+                quantity: 1
+            };
+            
+            // Use user-specific cart if logged in
+            if (typeof addToUserCart === 'function') {
+                addToUserCart(productData.id, productData.name, productData.price, productData.image, productData.quantity);
+            } else {
+                addToCart(productData);
+            }
+        });
     });
     
     // Buy now button click handler
     $('.buy-now-btn').click(function(e) {
         e.preventDefault();
         
-        const productData = {
-            id: $(this).data('id'),
-            name: $(this).data('name'),
-            price: parseFloat($(this).data('price')),
-            image: $(this).data('image'),
-            quantity: 1
-        };
-        
-        // Use user-specific buy now if logged in
-        if (typeof buyNow === 'function') {
-            buyNow(productData.id, productData.name, productData.price, productData.image);
-        } else {
-            // Fallback to localStorage for non-logged in users
-            localStorage.setItem('buy_now_item', JSON.stringify([productData]));
-            window.location.href = 'checkout.html';
-        }
+        checkUserAuthentication(function(isLoggedIn) {
+            if (!isLoggedIn) {
+                alert('Please log in or sign up to purchase products.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const productData = {
+                id: $(this).data('id'),
+                name: $(this).data('name'),
+                price: parseFloat($(this).data('price')),
+                image: $(this).data('image'),
+                quantity: 1
+            };
+            
+            // Use user-specific buy now if logged in
+            if (typeof buyNow === 'function') {
+                buyNow(productData.id, productData.name, productData.price, productData.image);
+            }
+        });
     });
 });
+
+function checkUserAuthentication(callback) {
+    fetch('auth/user_status.php', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        callback(data.authenticated);
+    })
+    .catch(error => {
+        console.error('Auth check error:', error);
+        callback(false);
+    });
+}
 
 function checkAuthAndInitializeCart() {
     // Check if user is logged in

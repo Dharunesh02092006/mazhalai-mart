@@ -109,49 +109,17 @@ class OrderAPI {
             startSecureSession();
             $userId = getCurrentUserId();
             
-            if ($userId) {
-                // Return only user's orders
-                return $this->getUserOrders($userId);
+            if (!$userId) {
+                // User not logged in - return error
+                return [
+                    'success' => false,
+                    'message' => 'Authentication required',
+                    'orders' => []
+                ];
             }
             
-            // Return all orders (for admin or non-logged in users)
-            $query = "SELECT o.id, o.order_id, o.user_id, o.customer_name, o.customer_email, o.customer_phone, 
-                     o.shipping_address, o.product_names, o.quantities, o.payment_method, o.subtotal, 
-                     o.delivery_charges, o.total_amount, o.status, o.created_at, o.updated_at
-                     FROM orders o
-                     ORDER BY o.created_at DESC";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            
-            $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Get order items for each order from the separate table
-            foreach ($orders as &$order) {
-                $itemsQuery = "SELECT oi.product_id, oi.product_name, oi.quantity, oi.price, oi.total
-                              FROM order_items oi 
-                              WHERE oi.order_id = :order_id";
-                $itemsStmt = $this->conn->prepare($itemsQuery);
-                $itemsStmt->bindParam(':order_id', $order['id']);
-                $itemsStmt->execute();
-                $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Add image paths to items
-                foreach ($items as &$item) {
-                    $item['image'] = $this->getImagePathByName($item['product_name']);
-                    $item['id'] = $item['product_id'];
-                    $item['name'] = $item['product_name'];
-                }
-                
-                $order['items'] = $items;
-                $order['order_date'] = $order['created_at'];
-            }
-            
-            return [
-                'success' => true,
-                'orders' => $orders,
-                'count' => count($orders)
-            ];
+            // Return only user's orders
+            return $this->getUserOrders($userId);
             
         } catch(Exception $e) {
             return [
