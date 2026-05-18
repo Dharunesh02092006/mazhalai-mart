@@ -98,21 +98,21 @@ try {
             'username' => $username,
             'email' => $email
         ],
-        'redirect' => '/mazhalai-mart/index.html'
+        'redirect' => '/mazhalai-mart-copy/index.html'
     ]);
     
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage()
-    ]);
 } catch (PDOException $e) {
     error_log("Signup database error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Database error occurred'
+    ]);
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
     ]);
 }
 ?>

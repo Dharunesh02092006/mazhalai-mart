@@ -45,13 +45,13 @@ try {
         echo json_encode([
             'success' => true,
             'message' => 'Logged out successfully',
-            'redirect' => '/mazhalai-mart/login.html'
+            'redirect' => '/mazhalai-mart-copy/login.html'
         ]);
         exit;
     }
     
     // For regular requests, redirect to login page
-    header('Location: /mazhalai-mart/login.html?message=logged_out');
+    header('Location: /mazhalai-mart-copy/login.html?message=logged_out');
     exit;
     
 } catch (Exception $e) {
@@ -61,7 +61,7 @@ try {
     session_destroy();
     clearRememberMeCookie();
     
-    header('Location: /mazhalai-mart/login.html?error=logout_error');
+    header('Location: /mazhalai-mart-copy/login.html?error=logout_error');
     exit;
 }
 ?>
