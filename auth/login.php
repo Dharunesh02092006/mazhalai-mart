@@ -70,23 +70,28 @@ try {
     // Handle remember me functionality
     $rememberToken = null;
     if ($rememberMe) {
-        // Generate secure token
-        $rememberToken = generateSecureToken();
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
-        
-        // Clean up old tokens for this user (optional - keep only latest)
-        $cleanupStmt = $pdo->prepare("DELETE FROM remember_tokens WHERE user_id = ?");
-        $cleanupStmt->execute([$user['id']]);
-        
-        // Store token in database
-        $tokenStmt = $pdo->prepare("
-            INSERT INTO remember_tokens (user_id, token, expires_at) 
-            VALUES (?, ?, ?)
-        ");
-        $tokenStmt->execute([$user['id'], $rememberToken, $expiresAt]);
-        
-        // Set secure cookie
-        setRememberMeCookie($rememberToken, strtotime('+30 days'));
+        try {
+            // Generate secure token
+            $rememberToken = generateSecureToken();
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
+            
+            // Clean up old tokens for this user (optional - keep only latest)
+            $cleanupStmt = $pdo->prepare("DELETE FROM remember_tokens WHERE user_id = ?");
+            $cleanupStmt->execute([$user['id']]);
+            
+            // Store token in database
+            $tokenStmt = $pdo->prepare("
+                INSERT INTO remember_tokens (user_id, token, expires_at) 
+                VALUES (?, ?, ?)
+            ");
+            $tokenStmt->execute([$user['id'], $rememberToken, $expiresAt]);
+            
+            // Set secure cookie
+            setRememberMeCookie($rememberToken, strtotime('+30 days'));
+        } catch (PDOException $e) {
+            // Log remember me error but don't block login
+            error_log("Remember me token error for user " . $user['id'] . ": " . $e->getMessage());
+        }
     }
     
     // Success response
@@ -99,21 +104,21 @@ try {
             'email' => $user['email']
         ],
         'remember_me' => $rememberMe,
-        'redirect' => '/mazhalai-mart/index.html'
+        'redirect' => '/mazhalai-mart-copy/index.html'
     ]);
     
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage()
-    ]);
 } catch (PDOException $e) {
     error_log("Login database error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Database error occurred'
+    ]);
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
     ]);
 }
 ?>
