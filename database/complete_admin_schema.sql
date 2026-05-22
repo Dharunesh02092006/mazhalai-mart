@@ -86,15 +86,17 @@ CREATE TABLE remember_tokens (
 CREATE TABLE user_cart (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
+    product_id INT NOT NULL,
     product_name VARCHAR(255) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
+    product_price DECIMAL(10, 2) NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
-    image_path VARCHAR(500) DEFAULT NULL,
+    product_image VARCHAR(500) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
-    UNIQUE KEY unique_user_product (user_id, product_name)
+    INDEX idx_product_id (product_id),
+    UNIQUE KEY unique_user_product (user_id, product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create orders table

@@ -163,7 +163,7 @@ if (isset($_GET['message'])) {
             
             <div class="admin-login-footer">
                 <p><a href="../index.html">← Back to Website</a></p>
-                <p class="admin-note">Default: <?php echo env('ADMIN_USERNAME', 'admin'); ?> / <?php echo env('ADMIN_PASSWORD', 'admin123'); ?></p>
+                
             </div>
         </div>
     </div>

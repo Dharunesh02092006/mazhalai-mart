@@ -3,24 +3,14 @@
  * Fixed Block/Unblock User API for Mazhalai Mart Admin Panel
  */
 
-session_start();
-
-// Set content type
 header('Content-Type: application/json');
 
 // Enable error reporting but don't display errors in JSON response
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-// Simple session check
-if (!isset($_SESSION['admin_id'])) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Not authenticated'
-    ]);
-    exit;
-}
+// Require admin authentication
+require_once __DIR__ . '/../admin_check.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
@@ -28,14 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // Database connection
-    $host = 'localhost';
-    $dbname = 'mazhalai_mart';
-    $username = 'root';
-    $password = 'dharun2403@';
-    
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = getDBConnection();
     
     $userId = intval($_POST['user_id'] ?? 0);
     $action = $_POST['action'] ?? '';
@@ -58,13 +41,14 @@ try {
     }
     
     // Update user status
+    $adminId = getCurrentAdminId();
     if ($action === 'block') {
         $stmt = $pdo->prepare("
             UPDATE users 
             SET status = 'blocked', blocked_by = ?, blocked_at = NOW() 
             WHERE id = ?
         ");
-        $stmt->execute([$_SESSION['admin_id'], $userId]);
+        $stmt->execute([$adminId, $userId]);
         $message = 'User blocked successfully';
         $logAction = 'block';
     } else {
@@ -85,7 +69,7 @@ try {
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ");
         $logStmt->execute([
-            $_SESSION['admin_id'],
+            $adminId,
             $logAction,
             'user',
             $userId,
