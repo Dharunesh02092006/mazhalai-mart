@@ -107,7 +107,9 @@ function updateCartQuantity(productId, newQuantity) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            loadUserCart(); // Reload cart to update totals
+            showNotification(result.message, 'success');
+            // Dispatch event to trigger cart reload if page is listening
+            window.dispatchEvent(new Event('cartUpdated'));
         } else {
             showNotification(result.message, 'error');
         }
@@ -119,10 +121,6 @@ function updateCartQuantity(productId, newQuantity) {
 }
 
 function removeFromUserCart(productId) {
-    if (!confirm('Are you sure you want to remove this item from your cart?')) {
-        return;
-    }
-    
     const removeData = {
         product_id: productId
     };
@@ -139,7 +137,8 @@ function removeFromUserCart(productId) {
     .then(result => {
         if (result.success) {
             showNotification(result.message, 'success');
-            loadUserCart(); // Reload cart
+            // Dispatch event to trigger cart reload if page is listening
+            window.dispatchEvent(new Event('cartUpdated'));
         } else {
             showNotification(result.message, 'error');
         }

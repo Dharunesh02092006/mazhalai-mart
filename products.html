@@ -126,22 +126,21 @@
             if (product.image_path) {
                 const imagePath = product.image_path.trim();
                 
-                // Check if image_path starts with a directory (images/, uploads/, etc.)
-                if (imagePath.startsWith('images/') || imagePath.startsWith('uploads/')) {
-                    // These are full relative paths from root
+                // If image_path already starts with admin/ or images/, use it as-is
+                if (imagePath.startsWith('admin/') || imagePath.startsWith('images/')) {
                     imageUrl = imagePath;
-                } else if (imagePath.startsWith('admin/')) {
-                    // Already has admin prefix
-                    imageUrl = imagePath;
-                } else {
-                    // Assume it's an uploaded file without prefix
-                    // Check if it looks like a filename from admin uploads
-                    if (imagePath.includes('product_') || imagePath.includes('.png') || imagePath.includes('.jpg') || imagePath.includes('.jpeg') || imagePath.includes('.gif')) {
-                        imageUrl = 'admin/uploads/products/' + imagePath;
-                    } else {
-                        // Default case
-                        imageUrl = 'images/' + imagePath;
-                    }
+                }
+                // If it starts with uploads/, it needs admin prefix (old format fix)
+                else if (imagePath.startsWith('uploads/')) {
+                    imageUrl = 'admin/' + imagePath;
+                }
+                // For just filenames, assume they're in admin/uploads/products/
+                else if (imagePath.includes('product_')) {
+                    imageUrl = 'admin/uploads/products/' + imagePath;
+                }
+                // Default fallback for other cases
+                else {
+                    imageUrl = 'images/' + imagePath;
                 }
             }
             

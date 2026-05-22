@@ -327,53 +327,6 @@
     font-family: 'Quicksand', sans-serif;
 }
 
-/* System Status */
-.system-status {
-    background: #FFFDF8;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(75, 46, 43, 0.08);
-    border: 2px solid #E6BE7A;
-}
-
-.status-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #E6BE7A;
-    font-family: 'Quicksand', sans-serif;
-}
-
-.status-item:last-child {
-    border-bottom: none;
-}
-
-.status-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 15px;
-    background: #E76F51;
-}
-
-.status-indicator.active {
-    background: #4CAF50;
-}
-
-.status-indicator.inactive {
-    background: #E76F51;
-}
-
-.status-value {
-    margin-left: auto;
-    font-weight: 600;
-    color: #4CAF50;
-}
-
-.status-value.status-error {
-    color: #E76F51;
-}
-
 /* Table Styles */
 .admin-table-container {
     background: #FFFDF8;
