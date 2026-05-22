@@ -105,7 +105,6 @@ function loadCartPageFromStorage() {
     
     displayCartItems(cart);
     displayCartSummary(cart);
-}
 
 function displayEmptyCart() {
     $('#cart-items').html(`
