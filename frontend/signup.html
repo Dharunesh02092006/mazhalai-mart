@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Mazhalai Mart</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Mazhalai Mart</h1>
+                <p>Safe & Soft Products for Your Little One</p>
+                <h2>Create Account</h2>
+            </div>
+            
+            <form id="signup-form" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Choose a username">
+                    <span class="error-message" id="username-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Create a password">
+                    <span class="error-message" id="password-error"></span>
+                    <small class="form-hint">Password must be at least 6 characters long</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password">
+                    <span class="error-message" id="confirm_password-error"></span>
+                </div>
+                
+                <button type="submit" class="auth-btn" id="signup-btn">
+                    <span class="btn-text">Create Account</span>
+                    <span class="btn-loading" style="display: none;">Creating account...</span>
+                </button>
+                
+                <div class="error-message" id="form-error"></div>
+                <div class="success-message" id="form-success"></div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html">Sign in here</a></p>
+                <p><a href="index.html">← Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Handle form submission
+            $('#signup-form').on('submit', function(e) {
+                e.preventDefault();
+                handleSignup();
+            });
+            
+            // Clear errors on input
+            $('input').on('input', function() {
+                clearFieldError($(this).attr('name'));
+                clearFormMessages();
+            });
+            
+            // Real-time password confirmation validation
+            $('#confirm_password').on('input', function() {
+                const password = $('#password').val();
+                const confirmPassword = $(this).val();
+                
+                if (confirmPassword && password !== confirmPassword) {
+                    showFieldError('confirm_password', 'Passwords do not match');
+                } else {
+                    clearFieldError('confirm_password');
+                }
+            });
+        });
+
+        function handleSignup() {
+            const formData = {
+                username: $('#username').val().trim(),
+                email: $('#email').val().trim(),
+                password: $('#password').val(),
+                confirm_password: $('#confirm_password').val()
+            };
+            
+            // Clear previous errors
+            clearAllErrors();
+            
+            // Validation
+            if (!formData.username) {
+                showFieldError('username', 'Username is required');
+                return;
+            }
+            
+            if (formData.username.length < 3) {
+                showFieldError('username', 'Username must be at least 3 characters');
+                return;
+            }
+            
+            if (!formData.email) {
+                showFieldError('email', 'Email is required');
+                return;
+            }
+            
+            if (!formData.password) {
+                showFieldError('password', 'Password is required');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                showFieldError('password', 'Password must be at least 6 characters');
+                return;
+            }
+            
+            if (formData.password !== formData.confirm_password) {
+                showFieldError('confirm_password', 'Passwords do not match');
+                return;
+            }
+            
+            // Show loading state
+            setLoadingState(true);
+            
+            // Make API request
+            fetch('../auth/signup.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                setLoadingState(false);
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'index.html';
+                    }, 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                setLoadingState(false);
+                console.error('Signup error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+            });
+        }
+
+        function setLoadingState(loading) {
+            const btn = $('#signup-btn');
+            const btnText = $('.btn-text');
+            const btnLoading = $('.btn-loading');
+            
+            if (loading) {
+                btn.prop('disabled', true);
+                btnText.hide();
+                btnLoading.show();
+            } else {
+                btn.prop('disabled', false);
+                btnText.show();
+                btnLoading.hide();
+            }
+        }
+
+        function showFieldError(field, message) {
+            $(`#${field}-error`).text(message).show();
+            $(`#${field}`).addClass('error');
+        }
+
+        function clearFieldError(field) {
+            $(`#${field}-error`).text('').hide();
+            $(`#${field}`).removeClass('error');
+        }
+
+        function clearAllErrors() {
+            $('.error-message').text('').hide();
+            $('input').removeClass('error');
+        }
+
+        function clearFormMessages() {
+            $('#form-error, #form-success').text('').hide();
+        }
+
+        function showMessage(message, type) {
+            clearFormMessages();
+            $(`#form-${type}`).text(message).show();
+        }
+    </script>
+</body>
+</html>

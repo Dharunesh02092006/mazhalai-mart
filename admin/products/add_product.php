@@ -97,7 +97,7 @@ function handleImageUpload($file) {
     $filepath = $uploadDir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
-        return ['success' => true, 'path' => 'uploads/products/' . $filename];
+        return ['success' => true, 'path' => 'admin/uploads/products/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Failed to upload file'];
     }
