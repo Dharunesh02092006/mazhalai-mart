@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazhalai Mart - Cart</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="cart.css">
+    <link rel="stylesheet" href="interactive.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <h1>Mazhalai Mart</h1>
+            <p>Safe & Soft Products for Your Little One</p>
+        </div>
+        <div class="nav">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html" class="active cart-link">Cart <span class="cart-count" style="display:none;">0</span></a>
+            <a href="orders.html">Orders</a>
+        </div>
+    </div>
+    <section class="cart-page container" id="cart-content" style="display: none;">
+        <div class="cart-items card" id="cart-items-container">
+            <h2>My Cart</h2>
+            <div id="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+        </div>
+        <div class="cart-summary card" id="cart-summary">
+            <!-- Cart summary will be loaded here -->
+        </div>
+    </section>
+    
+    <div class="footer">
+        <p></p>
+    </div>
+    
+    <script src="js/cart.js"></script>
+    <script src="js/user-cart.js"></script>
+    <script src="js/cart-page.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+/* Authentication Styles for Mazhalai Mart - Matching Website Design */
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #E6E0CF;
+    padding: 20px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(75, 46, 43, 0.15);
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 450px;
+    animation: slideUp 0.6s ease-out;
+    border: 2px solid #4B2E2B;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.auth-header h1 {
+    font-family: 'Lemon Milk', 'Quicksand', sans-serif;
+    color: #4B2E2B;
+    font-size: 2.2rem;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.auth-header p {
+    color: #ffa200;
+    font-size: 0.9rem;
+    margin: 0 0 25px 0;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.auth-header h2 {
+    font-family: 'Lemon Milk', 'Quicksand', sans-serif;
+    color: #4B2E2B;
+    font-size: 1.6rem;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    color: #4B2E2B;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.form-group input {
+    padding: 16px 20px;
+    border: 2px solid #E6BE7A;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Quicksand', sans-serif;
+    transition: all 0.3s ease;
+    background: #fefefe;
+    color: #1C1C1C;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4B2E2B;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(75, 46, 43, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-group input.error {
+    border-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.form-group input.error:focus {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: #8B7355;
+    margin-top: 5px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #4B2E2B;
+    user-select: none;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #E6BE7A;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: #E6BE7A;
+    border-color: #E6BE7A;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    color: #4B2E2B;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.auth-btn {
+    background: #E6BE7A;
+    color: #4B2E2B;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Quicksand', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(230, 190, 122, 0.4);
+}
+
+.auth-btn:hover:not(:disabled) {
+    background: #d4a95e;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(230, 190, 122, 0.6);
+}
+
+.auth-btn:active {
+    transform: translateY(-1px);
+}
+
+.auth-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    background: #8B7355;
+}
+
+.btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-loading::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-top: 2px solid #4B2E2B;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Quicksand', sans-serif;
+    display: none;
+    margin-top: 5px;
+}
+
+.success-message {
+    color: #4B2E2B;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Quicksand', sans-serif;
+    display: none;
+    text-align: center;
+    padding: 15px;
+    background: #E6E0CF;
+    border-radius: 10px;
+    border: 2px solid #4B2E2B;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 2px solid #E6BE7A;
+}
+
+.auth-footer p {
+    margin: 10px 0;
+    color: #8B7355;
+    font-size: 0.95rem;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+}
+
+.auth-footer a {
+    color: #4B2E2B;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.auth-footer a:hover {
+    color: #E6BE7A;
+    text-decoration: underline;
+}
+
+/* Authentication Navigation Styles */
+.nav .user-greeting {
+    color: #E6E0CF;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    background: #f7ac3c;
+    border-radius: 20px;
+    margin-left: 10px;
+    color: #4B2E2B;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.nav .logout-link {
+    color: #ff6b6b !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.nav .logout-link:hover {
+    color: #ee5a52 !important;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 40px 25px;
+        margin: 10px;
+        max-width: 90%;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .nav .user-greeting {
+        display: block;
+        margin: 8px 0;
+        text-align: center;
+    }
+}
+/* Enhanced Error Message Styles */
+.error-message {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.error-message:not(:empty) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.form-group input.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-group input.error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.35);
+}
+
+/* Success Message Styles */
+.success-message {
+    display: block;
+    color: #28a745;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 10px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    margin-top: 15px;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.success-message:not(:empty) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Form Error Message Styles */
+#form-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+#form-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Real-time validation indicators */
+.form-group input:valid {
+    border-color: #28a745;
+}
+
+.form-group input:valid:not(:placeholder-shown) {
+    background-color: #f8fff9;
+}
+
+/* Loading states for availability check */
+.checking-availability::after {
+    content: "Checking...";
+    color: #6c757d;
+    font-size: 0.75rem;
+    margin-left: 8px;
+}

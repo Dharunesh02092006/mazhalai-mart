@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product - Mazhalai Mart Admin</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../admin-styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h1>Mazhalai Mart</h1>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="../dashboard.html" class="admin-nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="view_products.html" class="admin-nav-item active">
+                    <i>📦</i> Products
+                </a>
+                <a href="../orders/view_orders.html" class="admin-nav-item">
+                    <i>🛒</i> Orders
+                </a>
+                <a href="../users/view_users.html" class="admin-nav-item">
+                    <i>👥</i> Users
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <header class="admin-header">
+                <h1>Edit Product</h1>
+                <div class="admin-user-info">
+                    <div class="admin-user-details">
+                        <p class="admin-user-name" id="adminName">Loading...</p>
+                        <p class="admin-user-role" id="adminRole">Loading...</p>
+                    </div>
+                    <a href="../logout.php" class="admin-logout-btn">Logout</a>
+                </div>
+            </header>
+            
+            <main class="admin-content">
+                <div class="page-header">
+                    <h2 class="page-title">Edit Product</h2>
+                    <a href="view_products.html" class="admin-btn admin-btn-secondary">← Back to Products</a>
+                </div>
+                
+                <!-- Loading Message -->
+                <div id="loadingMessage" class="loading-message">Loading product details...</div>
+                
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    Failed to load product details. Please try again.
+                </div>
+                
+                <!-- Edit Product Form -->
+                <div id="editProductForm" style="display: none;">
+                    <form id="productForm" enctype="multipart/form-data">
+                        <input type="hidden" id="productId" name="id">
+                        
+                        <div class="form-container">
+                            <div class="form-section">
+                                <h3>Product Information</h3>
+                                
+                                <div class="form-group">
+                                    <label for="name">Product Name *</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea id="description" name="description" rows="4"></textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="price">Price (₹) *</label>
+                                        <input type="number" id="price" name="price" step="0.01" min="0" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="stock_quantity">Stock Quantity *</label>
+                                        <input type="number" id="stock_quantity" name="stock_quantity" min="0" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="category">Category *</label>
+                                        <select id="category" name="category" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Skin Care">Skin Care</option>
+                                            <option value="Bath & Body">Bath & Body</option>
+                                            <option value="Diapers">Diapers</option>
+                                            <option value="Nutrition">Nutrition</option>
+                                            <option value="Feeding">Feeding</option>
+                                            <option value="Clothing">Clothing</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="status">Status *</label>
+                                        <select id="status" name="status" required>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3>Product Image</h3>
+                                
+                                <div class="current-image" id="currentImageSection" style="display: none;">
+                                    <label>Current Image:</label>
+                                    <div class="image-preview">
+                                        <img id="currentImage" src="" alt="Current product image" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #E6BE7A;">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="image">New Image (optional)</label>
+                                    <input type="file" id="image" name="image" accept="image/*">
+                                    <small>Leave empty to keep current image. Supported formats: JPG, PNG, WebP</small>
+                                </div>
+                                
+                                <div class="image-preview" id="newImagePreview" style="display: none;">
+                                    <label>New Image Preview:</label>
+                                    <img id="previewImage" src="" alt="New image preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #E6BE7A;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="admin-btn admin-btn-success" id="submitBtn">
+                                <span id="submitText">Update Product</span>
+                                <span id="submitLoading" style="display: none;">Updating...</span>
+                            </button>
+                            <a href="view_products.html" class="admin-btn admin-btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        let productId = null;
+        
+        $(document).ready(function() {
+            // Get product ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            productId = urlParams.get('id');
+            
+            if (!productId) {
+                showError('No product ID specified.');
+                return;
+            }
+            
+            loadProductDetails();
+            loadAdminInfo();
+            
+            // Form submission
+            $('#productForm').on('submit', function(e) {
+                e.preventDefault();
+                updateProduct();
+            });
+            
+            // Image preview
+            $('#image').on('change', function() {
+                previewNewImage(this);
+            });
+        });
+        
+        function loadProductDetails() {
+            $.ajax({
+                url: '../api/products.php?id=' + productId,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.products && response.products.length > 0) {
+                        populateForm(response.products[0]);
+                        hideLoading();
+                        showForm();
+                    } else {
+                        showError('Product not found.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Load product error:', error);
+                    if (xhr.status === 401) {
+                        showError('Authentication required. Please <a href="../login.html">login again</a>.');
+                    } else {
+                        showError('Failed to load product details. Please try again.');
+                    }
+                }
+            });
+        }
+        
+        function populateForm(product) {
+            $('#productId').val(product.id);
+            $('#name').val(product.name);
+            $('#description').val(product.description || '');
+            $('#price').val(product.price);
+            $('#stock_quantity').val(product.stock_quantity);
+            $('#category').val(product.category);
+            $('#status').val(product.status);
+            
+            // Show current image if exists
+            if (product.image_path) {
+                $('#currentImage').attr('src', '../../' + product.image_path);
+                $('#currentImageSection').show();
+            }
+        }
+        
+        function updateProduct() {
+            const submitBtn = $('#submitBtn');
+            const submitText = $('#submitText');
+            const submitLoading = $('#submitLoading');
+            
+            // Show loading state
+            submitBtn.prop('disabled', true);
+            submitText.hide();
+            submitLoading.show();
+            
+            const formData = new FormData($('#productForm')[0]);
+            
+            $.ajax({
+                url: 'edit_product.php',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Product updated successfully!');
+                        window.location.href = 'view_products.html';
+                    } else {
+                        alert('Failed to update product: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Update product error:', error);
+                    
+                    let errorMessage = 'Failed to update product. Please try again.';
+                    
+                    if (xhr.status === 401) {
+                        errorMessage = 'Authentication required. Please login again.';
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        // Use default error message
+                    }
+                    
+                    alert(errorMessage);
+                },
+                complete: function() {
+                    // Reset loading state
+                    submitBtn.prop('disabled', false);
+                    submitText.show();
+                    submitLoading.hide();
+                }
+            });
+        }
+        
+        function previewNewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    $('#previewImage').attr('src', e.target.result);
+                    $('#newImagePreview').show();
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                $('#newImagePreview').hide();
+            }
+        }
+        
+        function showLoading() {
+            $('#loadingMessage').show();
+            $('#errorMessage').hide();
+            $('#editProductForm').hide();
+        }
+        
+        function hideLoading() {
+            $('#loadingMessage').hide();
+        }
+        
+        function showError(message) {
+            hideLoading();
+            $('#errorMessage').html(message).show();
+            $('#editProductForm').hide();
+        }
+        
+        function showForm() {
+            $('#editProductForm').show();
+            $('#errorMessage').hide();
+        }
+        
+        function loadAdminInfo() {
+            $.ajax({
+                url: '../api/admin_info.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.admin) {
+                        $('#adminName').text(response.admin.full_name);
+                        $('#adminRole').text(response.admin.role);
+                    } else {
+                        $('#adminName').text('Administrator');
+                        $('#adminRole').text('Admin');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to load admin info:', error);
+                    $('#adminName').text('Administrator');
+                    $('#adminRole').text('Admin');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

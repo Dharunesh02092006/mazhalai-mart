@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazhalai Mart - Products</title>
+    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="products.css?v=4">
+    <style>
+        /* Force button colors - inline styles have highest priority */
+        .add-to-cart-btn, button.add-to-cart-btn {
+            background-color: #E76F51 !important;
+            color: white !important;
+        }
+        .add-to-cart-btn:hover, button.add-to-cart-btn:hover {
+            background-color: #ee5a52 !important;
+        }
+        .btn-buy-now, button.btn-buy-now {
+            background-color: #E6BE7A !important;
+            color: #4B2E2B !important;
+        }
+        .btn-buy-now:hover, button.btn-buy-now:hover {
+             background-color: #d4a95e !important;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <h1>Mazhalai Mart</h1>
+            <p>Safe & Soft Products for Your Little One</p>
+        </div>
+        <div class="nav">
+            <a href="index.html">Home</a>
+            <a href="products.html" class="active">Products</a>
+            <a href="cart.html" class="cart-link">Cart <span class="cart-count" style="display:none;">0</span></a>
+            <a href="orders.html">Orders</a>
+        </div>
+    </div>
+    <section class="products container">
+        <h2 class="section-title">Our Products</h2>
+        <div class="product-grid" id="product-grid">
+            <!-- Products will be loaded here dynamically -->
+            <div class="loading-message">
+                <p>Loading products...</p>
+            </div>
+        </div>
+    </section>
+    
+    <div class="footer">
+        <p></p>
+    </div>
+    
+    <script src="js/cart.js?v=2024"></script>
+    <script src="js/user-cart.js?v=2024"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Load products from API on page load
+        $(document).ready(function() {
+            loadProductsFromDatabase();
+        });
+
+        function loadProductsFromDatabase() {
+            fetch('api/products.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.products && data.products.length > 0) {
+                        displayProducts(data.products);
+                    } else {
+                        displayErrorMessage('No products available');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading products:', error);
+                    displayErrorMessage('Error loading products. Please refresh the page.');
+                });
+        }
+
+        function displayProducts(products) {
+            let productsHTML = '';
+            
+            products.forEach(product => {
+                // Ensure price is a number
+                const price = parseFloat(product.price);
+                
+                // Handle image path: normalize and validate
+                let imageSrc = product.image || 'images/placeholder.jpg';
+                
+                // Ensure proper path format
+                if (!imageSrc || imageSrc === 'undefined' || imageSrc === 'null') {
+                    imageSrc = 'images/placeholder.jpg';
+                } else if (imageSrc.startsWith('uploads/')) {
+                    // Admin uploads - add admin/ prefix
+                    imageSrc = 'admin/' + imageSrc;
+                } else if (!imageSrc.startsWith('images/') && !imageSrc.startsWith('admin/') && !imageSrc.startsWith('data:')) {
+                    // Add images/ prefix if needed
+                    imageSrc = 'images/' + imageSrc;
+                }
+                
+                productsHTML += `
+                    <div class="product card">
+                        <img src="${imageSrc}" alt="${product.name}" title="${product.description}" onerror="this.src='images/placeholder.jpg'">
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p class="product-desc">${product.description}</p>
+                            <p class="price">₹${price}</p>
+                            <div class="btn-group">
+                                <button class="add-to-cart-btn" 
+                                        data-id="${product.id}" 
+                                        data-name="${product.name}" 
+                                        data-price="${price}" 
+                                        data-image="${imageSrc}">Add to Cart</button>
+                                <button class="btn-buy-now buy-now-btn" 
+                                        data-id="${product.id}" 
+                                        data-name="${product.name}" 
+                                        data-price="${price}" 
+                                        data-image="${imageSrc}">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            $('#product-grid').html(productsHTML);
+        }
+
+        function displayErrorMessage(message) {
+            const errorHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <p>${message}</p>
+                </div>
+            `;
+            $('#product-grid').html(errorHTML);
+        }
+    </script>
+</body>
+</html>

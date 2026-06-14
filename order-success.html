@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success - Mazhalai Mart</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="order-success-simple.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-brand">
+            <h1>MAZHALAI MART</h1>
+            <p>Safe & Soft Products for Your Little One</p>
+        </div>
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html" class="cart-link">
+                Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <a href="orders.html">Orders</a>
+            <div class="auth-section" id="authSection">
+                <a href="login.html" class="auth-link" id="loginLink">Login</a>
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <span class="user-name" id="userName">User</span>
+                    <div class="user-dropdown">
+                        <a href="profile.html">Profile</a>
+                        <a href="orders.html">My Orders</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Order Success Content -->
+    <main class="success-page">
+        <div class="container">
+            <div class="success-card">
+                <!-- Animated Success Icon -->
+                <div class="success-icon-container">
+                    <div class="success-icon">
+                        <div class="checkmark-circle"></div>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="success-content">
+                    <h1 class="success-title">Order Placed Successfully!</h1>
+                    <div class="order-details">
+                        <p class="order-info">Your order has been confirmed and is being processed.</p>
+                        <div class="order-id-section">
+                            <span class="order-label">Order ID:</span>
+                            <span class="order-id" id="orderIdDisplay">Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary Card -->
+                    <div class="order-summary-card" id="orderSummary">
+                        <h3>Order Summary</h3>
+                        <div id="orderItems"></div>
+                        <div class="total-section">
+                            <div class="total-row">
+                                <span>Total Amount:</span>
+                                <span class="total-amount" id="totalAmount">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <a href="orders.html" class="btn btn-primary">
+                            View Orders
+                        </a>
+                        <a href="products.html" class="btn btn-secondary">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/order-success.js"></script>
+</body>
+</html>
